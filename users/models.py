@@ -23,3 +23,4 @@ class User(AbstractUser):
     point = models.FloatField(max_length=5, verbose_name="assets", default= 0)
     country = models.CharField(max_length=50, default="KOR")
     address = models.CharField(max_length=200, default="")
+    is_curated = models.BooleanField(default=False)

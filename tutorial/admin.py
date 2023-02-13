@@ -1,17 +1,17 @@
 from django.contrib import admin
 from adminpage.baseAdmin import BaseAdmin
-from .models import Genre, Artist
+from .models import Tutorial, Curation
 
 
-@admin.register(Genre)
-class GenreAdmin(BaseAdmin):
+@admin.register(Tutorial)
+class TutorialAdmin(BaseAdmin):
     list_display = (
         "__str__",
     )
 
 
-@admin.register(Artist)
-class ArtistAdmin(BaseAdmin):
+@admin.register(Curation)
+class CurationAdmin(BaseAdmin):
     list_display = (
         "__str__",
     )

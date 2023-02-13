@@ -39,6 +39,7 @@ CUSTOM_APPS = [
     'adminpage.apps.AdminpageConfig',
     'directmessages.apps.DirectmessagesConfig',
     'genres.apps.GenresConfig',
+    'donates.apps.DonatesConfig',
 ]
 
 # Application definition
