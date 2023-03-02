@@ -14,10 +14,24 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
-admin.site.site_header = 'ENTERPLATFORM'
-admin.site.index_title = 'ENTERPLATFORM'
+    path('baton/', include('baton.urls')),
+    path('api/v1/users/', include("users.urls")),
+    path('api/v1/directmessages/', include("directmessages.urls")),
+    path('api/v1/donates/', include("donates.urls")),
+    path('api/v1/banks/', include("banks.urls")),
+    path('api/v1/feeds/', include("feeds.urls")),
+    path('api/v1/genres/', include("genres.urls")),
+    path('api/v1/medias/', include("medias.urls")),
+    path('api/v1/notices/', include('notices.urls')),
+    path('api/v1/reviews/', include("reviews.urls")),
+    path('api/v1/tutorial/', include("tutorial.urls")),
+    path('api/v1/votes/', include("votes.urls")),
+    path('api/v1/wallets/', include("wallets.urls")),
+    path('api/v1/banners/', include("banners.urls")),
+] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

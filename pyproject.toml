@@ -12,6 +12,8 @@ django = "^4.1.6"
 djangorestframework = "^3.14.0"
 psycopg2-binary = "^2.9.5"
 pillow = "^9.4.0"
+mysqlclient = "^2.1.1"
+django-baton = {extras = ["analytics"], version = "^2.6.2"}
 
 
 [build-system]

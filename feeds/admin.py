@@ -1,12 +1,14 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from .models import Feed, WorkLog
 from medias.models import Photo, Video, Music
 from adminpage.baseAdmin import BaseAdmin
+
 # Register your models here.
 
 class PhotoInline(admin.TabularInline):
     model = Photo
-    extra = 0
+    extra = 1
 class VideoInline(admin.TabularInline):
     model = Video
     extra = 0
@@ -31,6 +33,10 @@ class FeedAdmin(BaseAdmin):
     list_filter = (
         "on_public",
     )
+    
+    readonly_fields = [
+        "img_preview"
+    ]
 
     search_fields = (
         "user",
@@ -38,6 +44,7 @@ class FeedAdmin(BaseAdmin):
     )
 
     inlines = [WorkLogInline,MusicInline]
+
 @admin.register(WorkLog)
 class WorkLogAdmin(BaseAdmin):
 
@@ -46,10 +53,14 @@ class WorkLogAdmin(BaseAdmin):
         "payload",
         "created_at",
         "updated_at",
+        "photos",
     )
 
     readonly_fields = (
         "created_at",
         "updated_at",
     )
+
     inlines = [PhotoInline, VideoInline]
+
+   

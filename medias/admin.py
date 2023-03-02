@@ -10,7 +10,9 @@ class PhotoAdmin(BaseAdmin):
         "created_at",
         "updated_at",
     )
-
+    readonly_fields = [
+        "img_preview"
+    ]
 
 @admin.register(Video)
 class VideoAdmin(BaseAdmin):

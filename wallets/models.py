@@ -17,6 +17,8 @@ class Wallet(CommonModel):
     bisou = models.FloatField(default=0)
     bank = models.ForeignKey("banks.Bank", on_delete=models.SET_NULL, null= True, blank= True)
     account = models.CharField(max_length=200, default= "", blank= True, null= True)
-
+    class Meta:
+        verbose_name = "지갑 관리"
+        verbose_name_plural = "지갑 목록 관리"
     def __str__(self) -> str:
         return f"{self.owner}'s wallet"

@@ -8,9 +8,13 @@ class ChattingRoom(CommonModel):
         "users.User",
         related_name= "chattingrooms",
     )
+    class Meta:
+        verbose_name = "채팅방 관리"
+        verbose_name_plural = "채팅방 관리 목록"
 
     def __str__(self) -> str:
         return "Chatting Room."
+    
 
 class Message(CommonModel):
 
@@ -27,6 +31,8 @@ class Message(CommonModel):
         on_delete=models.CASCADE,
         related_name= "messages",
     )
-
+    class Meta:
+        verbose_name = "메시지 관리"
+        verbose_name_plural = "메시지 목록 관리"
     def __str__(self) -> str:
         return f"{self.user} says: {self.text}"

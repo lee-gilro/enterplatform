@@ -24,3 +24,7 @@ class User(AbstractUser):
     country = models.CharField(max_length=50, default="KOR")
     address = models.CharField(max_length=200, default="")
     is_curated = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "유저 관리"
+        verbose_name_plural = "유저 목록 관리"
