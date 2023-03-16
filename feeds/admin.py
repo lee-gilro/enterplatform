@@ -53,7 +53,7 @@ class WorkLogAdmin(BaseAdmin):
         "payload",
         "created_at",
         "updated_at",
-        "photos",
+        
     )
 
     readonly_fields = (

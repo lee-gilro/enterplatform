@@ -14,6 +14,9 @@ psycopg2-binary = "^2.9.5"
 pillow = "^9.4.0"
 mysqlclient = "^2.1.1"
 django-baton = {extras = ["analytics"], version = "^2.6.2"}
+dj-rest-auth = "^3.0.0"
+django-allauth = "^0.52.0"
+djangorestframework-simplejwt = "^5.2.2"
 
 
 [build-system]

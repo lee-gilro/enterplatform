@@ -10,10 +10,9 @@ class Feed(CommonModel):
 
     user = models.OneToOneField("users.User", on_delete=models.CASCADE, related_name="feeds",)
     payloads = models.TextField(max_length=300,)
-    backgroundimage = models.ImageField(upload_to= 'images')
+    backgroundimage = models.ImageField(upload_to= 'images', blank= True, null= True)
     on_public = models.BooleanField(default=True)
     feed_name = models.CharField(max_length=150, default="")
-    #worklogs = models.ForeignKey("WorkLog", on_delete=models.SET_NULL, null= True, blank=True, related_name= "feeds",)
     class Meta:
         verbose_name = "피드 관리"
         verbose_name_plural = "피드 목록 관리"
@@ -25,7 +24,6 @@ class Feed(CommonModel):
 
 class WorkLog(CommonModel):
 
-    #poster = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="worklogs",)
     posted_feed = models.ForeignKey("Feed", on_delete=models.CASCADE,related_name="worklogs",)
     payload = models.TextField(max_length=250,)
     is_shop = models.BooleanField(default=False)

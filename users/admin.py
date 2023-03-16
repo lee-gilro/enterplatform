@@ -33,14 +33,7 @@ class CustomUserAdmin(UserAdmin):
             },
 
             ),
-        (
-            "Currency",
-            {
-                "fields":("point",),
-
-            }
-
-        ),
+       
     
     )
     readonly_fields = ('avatar','imgThumbnail')

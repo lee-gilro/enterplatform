@@ -28,3 +28,23 @@ class FeedDetails(APIView):
     def get(self, request, pk):
         feed = self.get_object(pk=pk)
         return Response(serializers.FeedSerializer(feed).data)
+    
+    def put(self, request, pk):
+        feed = self.get_object(pk=pk)
+        serializer = serializers.FeedSerializer(feed, data=request.data, partial=True)
+        if serializer.is_valid():
+            feed = serializer.save()
+            serializer = serializers.FeedSerializer(feed)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+        
+    def post(self, request, pk):
+        feed = self.get_object(pk=pk)
+        serializer = serializers.WorkLogSerializer(data=request.data)
+        if serializer.is_valid():
+            worklog = serializer.save(posted_feed=feed)
+            serializer = serializers.WorkLogSerializer(worklog)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
