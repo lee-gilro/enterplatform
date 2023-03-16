@@ -16,35 +16,41 @@ class Auth(APIView):
     # 유저 정보 확인
    
     def get(self, request):
-        try:
-            # access token을 decode 해서 유저 id 추출 => 유저 식별
-            access = request.COOKIES['access']
-            payload = jwt.decode(access, SECRET_KEY, algorithms=['HS256'])
-            pk = payload.get('user_id')
-            user = get_object_or_404(User, pk=pk)
-            serializer = serializers.UserSerializer(instance=user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        access = request.COOKIES.get('access', None)
 
-        except(jwt.exceptions.ExpiredSignatureError):
-            # 토큰 만료 시 토큰 갱신
-            data = {'refresh': request.COOKIES.get('refresh', None)}
-            serializer = TokenRefreshSerializer(data=data) # type: ignore
-            if serializer.is_valid(raise_exception=True):
-                access = serializer.data.get('access', None)
-                refresh = serializer.data.get('refresh', None)
-                payload = jwt.decode(access, SECRET_KEY, algorithms=['HS256']) # type: ignore
+        if access is not None:
+            try:
+                # access token을 decode 해서 유저 id 추출 => 유저 식별
+                payload = jwt.decode(access, SECRET_KEY, algorithms=['HS256'])
                 pk = payload.get('user_id')
                 user = get_object_or_404(User, pk=pk)
                 serializer = serializers.UserSerializer(instance=user)
-                res = Response(serializer.data, status=status.HTTP_200_OK)
-                res.set_cookie('access', access) # type: ignore
-                res.set_cookie('refresh', refresh) # type: ignore
-                return res
-            raise jwt.exceptions.InvalidTokenError
+                return Response(serializer.data, status=status.HTTP_200_OK)
 
-        except(jwt.exceptions.InvalidTokenError):
-            # 사용 불가능한 토큰일 때
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            except(jwt.exceptions.ExpiredSignatureError):
+                # 토큰 만료 시 토큰 갱신
+                data = {'refresh': request.COOKIES.get('refresh', None)}
+                serializer = TokenRefreshSerializer(data=data) # type: ignore
+                if serializer.is_valid(raise_exception=True):
+                    access = serializer.data.get('access', None)
+                    refresh = serializer.data.get('refresh', None)
+                    payload = jwt.decode(access, SECRET_KEY, algorithms=['HS256']) # type: ignore
+                    pk = payload.get('user_id')
+                    user = get_object_or_404(User, pk=pk)
+                    serializer = serializers.UserSerializer(instance=user)
+                    res = Response(serializer.data, status=status.HTTP_200_OK)
+                    res.set_cookie('access', access) # type: ignore
+                    res.set_cookie('refresh', refresh) # type: ignore
+                    return res
+                raise jwt.exceptions.InvalidTokenError
+
+            except(jwt.exceptions.InvalidTokenError):
+                # 사용 불가능한 토큰일 때
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # 로그인하지 않은 사용자의 경우, 이 부분을 실행합니다.
+            # 예를 들어, 로그인하지 않은 사용자에게는 비어있는 데이터를 반환할 수 있습니다.
+            return Response({"detail": "로그인이 필요한 기능입니다."}, status=status.HTTP_200_OK)
 
     # 로그인
     def post(self, request):
