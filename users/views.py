@@ -67,7 +67,7 @@ class Auth(APIView):
             access_token = str(token.access_token)
             res = Response(
                 {
-                    "user": serializer.data,
+                    "status_code":200,
                     "message": "login success",
                     "token": {
                         "access": access_token,
@@ -76,9 +76,10 @@ class Auth(APIView):
                 },
                 status=status.HTTP_200_OK,
             )
+            max_age = 3 * 60 * 60  # 3 hours in seconds
             # jwt 토큰 => 쿠키에 저장
-            res.set_cookie("access", access_token, httponly=True)
-            res.set_cookie("refresh", refresh_token, httponly=True)
+            res.set_cookie("access", access_token, max_age=max_age, httponly=True)
+            res.set_cookie("refresh", refresh_token, max_age=max_age, httponly=True)
             return res
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -115,10 +116,10 @@ class Register(APIView):
                 },
                 status=status.HTTP_200_OK,
             )
-            
+            max_age = 3 * 60 * 60  # 3 hours in seconds
             # jwt 토큰 => 쿠키에 저장
-            res.set_cookie("access", access_token, httponly=True)
-            res.set_cookie("refresh", refresh_token, httponly=True)
+            res.set_cookie("access", access_token, max_age=max_age, httponly=True)
+            res.set_cookie("refresh", refresh_token, max_age=max_age, httponly=True)
             
             return res
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
