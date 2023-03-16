@@ -65,6 +65,7 @@ class Auth(APIView):
             token = TokenObtainPairSerializer.get_token(user)
             refresh_token = str(token)
             access_token = str(token.access_token)
+            max_age = 3 * 60 * 60  # 3 hours in seconds
             res = Response(
                 {
                     "status_code":200,
@@ -72,11 +73,12 @@ class Auth(APIView):
                     "token": {
                         "access": access_token,
                         "refresh": refresh_token,
+                        "expire": max_age,
                     },
                 },
                 status=status.HTTP_200_OK,
             )
-            max_age = 3 * 60 * 60  # 3 hours in seconds
+            
             # jwt 토큰 => 쿠키에 저장
             res.set_cookie("access", access_token, max_age=max_age, httponly=True)
             res.set_cookie("refresh", refresh_token, max_age=max_age, httponly=True)
@@ -105,6 +107,7 @@ class Register(APIView):
             token = TokenObtainPairSerializer.get_token(user)
             refresh_token = str(token)
             access_token = str(token.access_token)
+            max_age = 3 * 60 * 60  # 3 hours in seconds
             res = Response(
                 {
                     "user": serializer.data,
@@ -112,11 +115,12 @@ class Register(APIView):
                     "token": {
                         "access": access_token,
                         "refresh": refresh_token,
+                        "expire": max_age,
                     },
                 },
                 status=status.HTTP_200_OK,
             )
-            max_age = 3 * 60 * 60  # 3 hours in seconds
+            
             # jwt 토큰 => 쿠키에 저장
             res.set_cookie("access", access_token, max_age=max_age, httponly=True)
             res.set_cookie("refresh", refresh_token, max_age=max_age, httponly=True)
