@@ -35,4 +35,6 @@ urlpatterns = [
     path('api/v1/votes/', include("votes.urls")),
     path('api/v1/wallets/', include("wallets.urls")),
     path('api/v1/banners/', include("banners.urls")),
+    path('api/v1/follows/', include("follows.urls")),
+    path('api/v1/likelists/', include("likelists.urls")),
 ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

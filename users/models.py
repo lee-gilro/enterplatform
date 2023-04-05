@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, BaseUserManager, PermissionsMixin
-
+from follows.models import Follow
 # 헬퍼 클래스
 class UserManager(BaseUserManager):
     def create_user(self, email, password, **kwargs):
@@ -61,10 +61,18 @@ class User(AbstractUser):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     # 헬퍼 클래스 사용
     objects = UserManager()
 
+
+    @property
+    def followers_count(self):
+        return Follow.objects.filter(followee=self).count()
+
+    @property
+    def followees_count(self):
+        return Follow.objects.filter(follower=self).count()
 	# 사용자의 username field는 email으로 설정 (이메일로 로그인)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

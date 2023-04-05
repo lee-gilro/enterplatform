@@ -17,7 +17,7 @@ class Feed(CommonModel):
         verbose_name = "피드 관리"
         verbose_name_plural = "피드 목록 관리"
     def __str__(self) -> str:
-        return self.user.username
+        return self.user.email if self.user else ''
     
     def img_preview(self):
         return mark_safe(f'<img src = "{self.backgroundimage.url}" width = "300" />')
@@ -28,12 +28,16 @@ class WorkLog(CommonModel):
     payload = models.TextField(max_length=250,)
     is_shop = models.BooleanField(default=False)
     on_public = models.BooleanField(default=False)
+    likelists = models.ManyToManyField("likelists.LikeList", related_name="liked_worklogs", blank=True)
     class Meta:
         verbose_name = "워크로그 관리"
         verbose_name_plural = "워크로그 목록 관리"
     
     def __str__(self) -> str:
         return self.payload
+    @property
+    def like_count(self):
+        return self.likelists.count()
 
 
     

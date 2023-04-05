@@ -60,6 +60,8 @@ CUSTOM_APPS = [
     'notices.apps.NoticesConfig',
     'tutorial.apps.TutorialConfig',
     'banners.apps.BannersConfig',
+    'follows.apps.FollowsConfig',
+    'likelists.apps.LikelistsConfig',
     'baton.autodiscover',
 ]
 
@@ -70,6 +72,7 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'dj_rest_auth',
     'dj_rest_auth.registration',
+    'storages',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -132,11 +135,6 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -197,7 +195,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -230,3 +228,23 @@ MEDIA_ROOT = 'uploads'
 MEDIA_URL = "user-uploads/"
 
 PAGE_SIZE = 3
+
+AWS_ACCESS_KEY_ID = 'AKIA4KMVG4VZHDK6NWY4'
+AWS_SECRET_ACCESS_KEY = 'TlGnnKGC1uXaupuP4PYcxOYKsfCdsAQuXJo99sPFy'
+AWS_STORAGE_BUCKET_NAME = 'enter-cdn'
+AWS_S3_REGION_NAME = 'ap-southeast-2'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = 'public-read'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 30,
+}

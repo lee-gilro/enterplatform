@@ -8,7 +8,6 @@ class ReviewAdmin(BaseAdmin):
 
     list_display = (
         "__str__",
-        "payload",
     )
 
     list_filter = (

@@ -31,7 +31,14 @@ class PrivateUserSerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = [
+                    'pk',
+                    'username', 
+                    'email', 
+                    'password',
+                    'followers_count',
+                    'followees_count',
+                  ]
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
             raise ValidationError("이미 존재하는 이메일 주소입니다.")

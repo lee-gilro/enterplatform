@@ -1,50 +1,91 @@
-from django.conf import settings
-from django.utils import timezone
-from django.db import transaction
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.status import HTTP_204_NO_CONTENT
-from rest_framework.response import Response
-from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, PermissionDenied
+from django.db.models import Subquery, OuterRef
+from rest_framework import permissions
+from rest_framework import generics
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Feed, WorkLog
-from . import serializers
+from .serializers import FeedSerializer, WorkLogSerializer
+from .permissions import IsOwnerOrReadOnly
+from users.models import User
+from follows.models import Follow
+# Create your views here.
 
-SAFE_METHODS = ('GET',)
+class FeedList(generics.ListCreateAPIView): #feed list 을 보여주는 view
+    queryset = Feed.objects.all()
+    serializer_class = FeedSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    http_method_names = ['get']
 
-class Feeds(APIView):
+class FeedDetail(generics.RetrieveUpdateDestroyAPIView): #feed detail 을 보여주는 view, 수정가능
+    queryset = Feed.objects.all()
+    serializer_class = FeedSerializer
+    authentication_classes = [JWTAuthentication, SessionAuthentication, BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    http_method_names = ['get', 'put']
+
+class WorkLogList(generics.ListCreateAPIView): #worklog list 을 보여주는 view, 워크로그 생산가능
+    queryset = WorkLog.objects.all()
+    serializer_class = WorkLogSerializer
+    authentication_classes = [JWTAuthentication, SessionAuthentication, BasicAuthentication]  
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    http_method_names = ['get', 'post']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        feed_pk = self.kwargs['feed_pk']
+        if feed_pk is not None:
+            queryset = queryset.filter(posted_feed_id=feed_pk)
+        return queryset
     
-    def get(self, request):
-        all_feeds = Feed.objects.all()
-        serializer = serializers.FeedSerializer(all_feeds, many = True,)
-        return Response(serializer.data)
-    
-class FeedDetails(APIView):
-    def get_object(self, pk):
-        try:
-            return Feed.objects.get(pk=pk)
-        except Feed.DoesNotExist:
-            return NotFound
-        
-    def get(self, request, pk):
-        feed = self.get_object(pk=pk)
-        return Response(serializers.FeedSerializer(feed).data)
-    
-    def put(self, request, pk):
-        feed = self.get_object(pk=pk)
-        serializer = serializers.FeedSerializer(feed, data=request.data, partial=True)
-        if serializer.is_valid():
-            feed = serializer.save()
-            serializer = serializers.FeedSerializer(feed)
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
-        
-    def post(self, request, pk):
-        feed = self.get_object(pk=pk)
-        serializer = serializers.WorkLogSerializer(data=request.data)
-        if serializer.is_valid():
-            worklog = serializer.save(posted_feed=feed)
-            serializer = serializers.WorkLogSerializer(worklog)
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
+    def perform_create(self, serializer):
+        # Get the user's feed
+        user_feed = self.request.user.feeds # type: ignore
+        print(user_feed)
+        serializer.save(posted_feed=user_feed)
+
+class WorkLogDetail(generics.RetrieveUpdateDestroyAPIView): #worklog detail 을 보여주는 view, 수정가능 인스타그램의 홈화면처럼 보여짐,
+    serializer_class = WorkLogSerializer
+    authentication_classes = [JWTAuthentication, SessionAuthentication, BasicAuthentication]  
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    http_method_names = ['get', 'put', 'delete']
+
+    def get_queryset(self):
+        queryset = WorkLog.objects.all()
+        feed_pk = self.kwargs['feed_pk']
+        if feed_pk is not None:
+            queryset = queryset.filter(posted_feed_id=feed_pk)
+        return queryset
+
+
+
+class FollowedUsersWorkLogList(generics.ListAPIView):
+    serializer_class = WorkLogSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_recommended_users(self):
+        return User.objects.order_by('-date_joined')[:5]  # Fetch the 5 most recent users, adjust as needed
+
+    def get_queryset(self):
+        user = self.request.user
+        followed_users = Follow.objects.filter(follower=user).values_list('followee', flat=True)
+
+        if not followed_users:
+            followed_users = [u.id for u in self.get_recommended_users()]
+        # Get the latest worklog for each user
+        latest_worklogs = WorkLog.objects.filter(
+            posted_feed__user_id=OuterRef('pk')
+        ).order_by('-created_at')
+
+        # Annotate the users queryset with the latest worklog's id
+        followed_users_with_latest_worklog = User.objects.filter(
+            id__in=followed_users
+        ).annotate(latest_worklog_id=Subquery(latest_worklogs.values('id')[:1]))
+
+        # Get the worklogs corresponding to the latest worklog ids
+        queryset = WorkLog.objects.filter(
+            id__in=followed_users_with_latest_worklog.values('latest_worklog_id')
+        ).order_by('-created_at')
+
+        return queryset
+
+

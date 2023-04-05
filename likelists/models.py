@@ -4,9 +4,8 @@ from common.models import CommonModel
 
 
 class LikeList(CommonModel):
-
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="likelists",)
-    worklogs = models.ForeignKey("feeds.WorkLog", on_delete=models.CASCADE, related_name= "likelists",)
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="user_likelists")
+    worklogs = models.ManyToManyField("feeds.WorkLog", related_name="liked_by", blank=True)
 
     def __str__(self) -> str:
-        return self.user
+        return str(self.user)
